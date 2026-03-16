@@ -11,6 +11,10 @@ struct roti{
 	
 roti dataroti[100];
 int r = 0;
+char nama_invoice[20];
+float harga_invoice;
+int jumlah_invoice;
+float total_invoice;
 
 void  inputroti(){
 	FILE *fp;
@@ -228,6 +232,220 @@ void editmenu(){
 		cout << "Data roti berhasil diperbarui." << endl;
 }
 
+void sequential(){
+	FILE *fp;
+	bool found = false;
+	int jumlahdata = hitungData();
+	char cariroti[20];
+	
+	cout << "Masukkan nama roti yang dicari : "; cin >> cariroti;
+	
+	fp = fopen ("roti.txt", "r");
+	
+	if(fp == NULL){
+        cout << "\n[Eror] file roti.txt tidak ditemukan." << endl;
+        return;
+    }
+    
+    r = 0;
+	while(fscanf(fp,"%d %s %f %d",
+	&dataroti[r].id,
+	dataroti[r].nama,
+	&dataroti[r].harga,
+	&dataroti[r].stok)!=EOF){
+		
+		int i = 0;
+		bool sama = true;
+		
+		while(dataroti[r].nama[i] != '\0' || cariroti[i] != '\0'){
+			if(dataroti[r].nama[i] != cariroti[i]){
+				sama=false;
+				break;
+			}
+			i++;
+		}
+
+		if(sama){
+			cout << "\nJumlah data roti : " << jumlahdata;
+			cout << "\nRoti ditemukan\n";
+			cout << "Nama   : " << dataroti[r].nama << endl;
+			cout << "Harga  : " << dataroti[r].harga << endl;
+			cout << "Stok   : " << dataroti[r].stok << endl;
+
+			found = true;
+			break;
+		}
+	}
+		
+		if(!found)
+		cout << "Data tidak ditemukan\n";
+		
+		fclose(fp);
+	
+}
+	
+void binary(){
+	FILE *fp;
+	bool found = false;
+	int jumlahdata = hitungData();
+	char cariroti[20];
+
+	cout << "Masukkan nama roti yang dicari : ";
+	cin >> cariroti;
+
+	fp = fopen("roti.txt","r");
+
+	if(fp == NULL){
+		cout << "\nError: file roti.txt tidak ditemukan\n";
+		return;
+	}
+
+	r = 0;
+	while(fscanf(fp,"%d %s %f %d",
+		&dataroti[r].id,
+		dataroti[r].nama,
+		&dataroti[r].harga,
+		&dataroti[r].stok) != EOF){
+		r++;
+	}
+
+	fclose(fp);
+
+	int kiri = 0;
+	int kanan = r - 1;
+
+	while(kiri <= kanan){
+
+		int tengah = (kiri + kanan) / 2;
+
+		int i = 0;
+		bool sama = true;
+		int banding = 0;
+
+		while(i < 20){
+
+			if(cariroti[i] > dataroti[tengah].nama[i]){
+				banding = 1;
+				sama = false;
+				break;
+			}
+			else if(cariroti[i] < dataroti[tengah].nama[i]){
+				banding = -1;
+				sama = false;
+				break;
+			}
+
+			i++;
+		}
+
+		if(sama){
+			found = true;
+
+			cout << "\nJumlah data roti : " << jumlahdata << endl;
+			cout << "Roti ditemukan\n";
+			cout << "Nama   : " << dataroti[tengah].nama << endl;
+			cout << "Harga  : " << dataroti[tengah].harga << endl;
+			cout << "Stok   : " << dataroti[tengah].stok << endl;
+
+			break;
+		}
+
+		else if(banding == 1){
+			kiri = tengah + 1;
+		}
+		else{
+			kanan = tengah - 1;
+		}
+	}
+
+	if(!found){
+		cout << "Data tidak ditemukan\n";
+	}
+}
+
+void beliroti(){
+	FILE *fp;
+	fp = fopen("roti.txt","r");
+
+	if(fp == NULL){
+		cout<<"File tidak ditemukan\n";
+		return;
+	}
+
+	r = 0;
+
+	while(fscanf(fp,"%d %s %f %d",
+		&dataroti[r].id,
+		dataroti[r].nama,
+		&dataroti[r].harga,
+		&dataroti[r].stok)!=EOF){
+		r++;
+	}
+
+	fclose(fp);
+
+	int idcari;
+	int jumlah_beli;
+	bool found=false;
+
+	cout<<"Masukkan ID roti yang ingin dibeli : ";
+	cin>>idcari;
+
+	for(int i=0;i<r;i++){
+		if(dataroti[i].id == idcari){
+
+			cout<<"Masukkan jumlah beli : ";
+			cin>>jumlah_beli;
+
+			if(jumlah_beli <= dataroti[i].stok){
+
+				dataroti[i].stok -= jumlah_beli;
+
+				int k=0;
+				while(dataroti[i].nama[k] != '\0'){
+					nama_invoice[k] = dataroti[i].nama[k];
+					k++;
+				}
+				nama_invoice[k] = '\0';
+
+				harga_invoice = dataroti[i].harga;
+				jumlah_invoice = jumlah_beli;
+				total_invoice = harga_invoice * jumlah_invoice;
+
+				cout<<"\nPembelian berhasil! Silakan pilih menu Invoice untuk mencetak struk\n";
+
+				found=true;
+				break;
+			}
+			else{
+				cout<<"Stok tidak cukup\n";
+			}
+		}
+	}
+
+	if(!found){
+		cout<<"ID roti tidak ditemukan\n";
+	}
+}
+
+void invoice(){
+
+	if(jumlah_invoice == 0){
+	cout << "Belum ada transaksi pembelian\n";
+	return;
+	}
+	
+    cout << "\n====== STRUK PEMBELIAN ======\n";
+
+    cout << "Nama Roti : " << nama_invoice << endl;
+    cout << "Harga     : " << harga_invoice << endl;
+    cout << "Jumlah    : " << jumlah_invoice << endl;
+    cout << "Total     : " << total_invoice << endl;
+
+    cout << "=============================\n";
+
+}
+
 int main()
 {
 	int pilihan;
@@ -308,11 +526,77 @@ int main()
 			cout << "\nusername dan password salah!\n";
 		}
 	}else if (pilihan ==2){
-		
+		int pilihPelanggan;
+		do{
+			cout << "\n=======================================" << endl;
+			cout << "||           WELCOME BAKER!          ||" << endl;
+			cout << "=======================================" << endl;
+			cout << "||" << "1. Cari roti" << endl;
+			cout << "||" << "2. Beli roti" << endl;
+			cout << "||" << "3. Invoice  roti" << endl;
+			cout << "||" << "4. Logout" << endl;
+			cout << "=======================================" << endl;
+			cout << "||" << "Pilihan  : "; cin >> pilihPelanggan;
+			
+			if(pilihPelanggan == 1){
+				int sequ;
+				cout << "Pilih Metode Lihat:" << endl;
+				cout << "1. Sequential" << endl;
+				cout << "2. Binary" << endl;
+				cout << "Masukkan metode : "; cin >> sequ;
+				
+				if(sequ == 1){
+				sequential();
+				}else if (sequ == 2){
+				binary();
+				}
+				char ngga;
+				cout << "Kembali ke menu? (y/n) : ";
+				cin >> ngga;
+	
+				if (ngga == 'n' || ngga == 'N'){
+				pilihPelanggan = 4;
+				}
+			}else if(pilihPelanggan == 2){
+				int asc;
+				
+				int jumlah = hitungData();
+				cout << "\nJumlah data roti: " << jumlah << endl;
+				cout << "Pilih Metode Lihat:" << endl;
+				cout << "1. Ascending" << endl;
+				cout << "2. Descending" << endl;
+				cout << "Masukkan metode : "; cin >> asc;
+				if(asc == 1){
+				sortingBubleASC();
+				}else if (asc == 2){
+				sortingQuickDESC();	
+				}
+				system("pause");
+				beliroti();
+				char ngga;
+				cout << "Kembali ke menu? (y/n) : ";
+				cin >> ngga;
+	
+				if (ngga == 'n' || ngga == 'N'){
+				pilihPelanggan = 4;
+				}
+			}else if(pilihPelanggan == 3){
+				invoice();
+				char ngga;
+				cout << "Kembali ke menu? (y/n) : ";
+				cin >> ngga;
+	
+				if (ngga == 'n' || ngga == 'N'){
+				pilihPelanggan = 4;
+				}
+			}else if(pilihPelanggan == 4){
+				cout << "\nTerimakasih telah berbelanja disini! Semoga harimu menyenangkan!" << endl;
+				system("pause");
+			}
+			}while(pilihPelanggan != 4);
 	}else{
 		system("cls");
 	}
 }while (pilihan != 3);
 	return 0;
 }
-
